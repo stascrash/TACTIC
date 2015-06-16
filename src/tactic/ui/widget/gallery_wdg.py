@@ -156,6 +156,7 @@ class GalleryWdg(BaseRefreshWdg):
         spt.gallery.right_arrow = bvr.src_el.getElement('.spt_right_arrow');
         spt.gallery.videos = {};
        
+        spt.gallery.stops  = bvr.src_el.getElements('.spt_gallery_stop');
 
         spt.gallery.init = function() {
             
@@ -180,6 +181,7 @@ class GalleryWdg(BaseRefreshWdg):
             }
             spt.gallery.index += 1;
             spt.gallery.show_index(spt.gallery.index);
+            spt.gallery.set_stop(spt.gallery.index);
         }
 
         spt.gallery.show_prev = function(src_el) {
@@ -195,6 +197,7 @@ class GalleryWdg(BaseRefreshWdg):
             
             spt.gallery.index -= 1;
             spt.gallery.show_index(spt.gallery.index);
+            spt.gallery.set_stop(spt.gallery.index);
         }
 
 
@@ -262,6 +265,14 @@ class GalleryWdg(BaseRefreshWdg):
             desc_el.innerHTML = desc;
         }
 
+        spt.gallery.set_stop = function(idx) {
+            var sibs = spt.gallery.stops;
+            for (var k =0; k < sibs.length; k++)
+                sibs[k].setStyle('background','transparent');
+            
+            sibs[idx].setStyle('background','#eee');
+
+        }
         '''
         } )
 
@@ -479,7 +490,35 @@ class GalleryWdg(BaseRefreshWdg):
         desc_outer_div.add_style("bottom: 0px")
         desc_outer_div.add_style("left: 50%")
 
+        # shortcut div
+        shortcut_div = DivWdg(css='spt_gallery_stop_top')
+        shortcut_div.add_style("width: 100%")
+        shortcut_div.add_style("position: absolute")
+        shortcut_div.add_style("bottom: 70px")
+        shortcut_div.add_style("color: white")
+        shortcut_div.add_style("display: flex")
+        shortcut_div.add_style("margin-left: 46%")
+        shortcut_div.add_style("flex-flow: row wrap")
 
+        shortcut_div.add_relay_behavior({'type':'click',
+            'bvr_match_class':'spt_gallery_stop',
+            'cbjs_action': '''
+                var idx = bvr.src_el.getAttribute('idx');
+                
+                idx = parseInt(idx, 10);
+                spt.gallery.show_index(idx);
+                spt.gallery.set_stop(idx);
+        '''})
+        inner.add(shortcut_div)
+
+        for idx, thumb_path in enumerate(thumb_paths):
+            span = DivWdg("&nbsp;", css='badge hand spt_gallery_stop')
+            span.add_attr('idx', idx)
+            span.add_style('margin-left','10px')
+            span.add_style('border', '1px solid #eee')
+            span.add_style('background', 'transparent')
+            span.add_styles('align-items: center; justify-content: center; width: 4px')
+            shortcut_div.add(span)
 
         return top
 
