@@ -3606,18 +3606,20 @@ class SObject(object):
 
             # if this is a timestamp, then add the a time zone.
             # For SQLite, this should always be set to GMT
-            # For Postgres, if there is no timestamp, then the value
+            # For Postgres, if there is no time zone, then the value
             # needs to be set to localtime
             if column_types.get(key) in ['timestamp', 'datetime','datetime2']:
                 if value and not SObject.is_day_column(key):
                     info = column_info.get(key)
                     if is_postgres and not info.get("time_zone"):
+                        # if it has no timezone, it assumes it is GMT
                         value = SPTDate.convert_to_local(value)
                     else:
                         value = SPTDate.add_gmt_timezone(value)
                 # stringified it if it's a datetime obj
                 if value and not isinstance(value, basestring):
                     value = value.strftime('%Y-%m-%d %H:%M:%S %z')
+           
                 changed = True
 
             if changed:
